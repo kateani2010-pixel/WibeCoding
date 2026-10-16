@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PyCamp — выбор версии</title>
+<style>
+  :root{
+    --bg:#0d1117;
+    --bg2:#161b22;
+    --bg3:#1c2129;
+    --border:#30363d;
+    --text:#e6edf3;
+    --muted:#8b949e;
+    --accent:#2ea043;
+    --accent2:#3fb950;
+    --blue:#58a6ff;
+    --purple:#bc8cff;
+    --yellow:#d29922;
+    --red:#f85149;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    min-height:100vh;
+    padding:40px 20px 80px;
+    line-height:1.6;
+  }
+  .wrap{max-width:960px;margin:0 auto}
+  header{text-align:center;margin-bottom:48px}
+  h1{
+    font-size:clamp(32px,5vw,48px);
+    font-weight:800;
+    letter-spacing:-1px;
+    margin-bottom:12px;
+  }
+  h1 span{
+    background:linear-gradient(90deg,var(--accent2),var(--blue));
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  header p{color:var(--muted);font-size:17px;max-width:640px;margin:0 auto}
+  .grid{display:grid;gap:18px}
+  .card{
+    display:block;
+    background:var(--bg2);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:22px 24px;
+    text-decoration:none;
+    color:inherit;
+    transition:transform .15s ease, border-color .15s ease, background .15s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .card::before{
+    content:"";
+    position:absolute;
+    left:0;top:0;bottom:0;
+    width:4px;
+    background:var(--accent);
+    transform:scaleY(0);
+    transform-origin:top;
+    transition:transform .2s ease;
+  }
+  .card:hover{
+    transform:translateY(-2px);
+    border-color:var(--accent2);
+    background:var(--bg3);
+  }
+  .card:hover::before{transform:scaleY(1)}
+  .card-head{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:10px;
+    flex-wrap:wrap;
+  }
+  .num{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:38px;height:38px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:16px;
+    background:var(--bg3);
+    border:1px solid var(--border);
+    color:var(--accent2);
+    flex:none;
+  }
+  .card h2{font-size:19px;font-weight:700;letter-spacing:-.3px}
+  .file{
+    font-family:"JetBrains Mono","Fira Code",Consolas,monospace;
+    font-size:12px;
+    color:var(--muted);
+    background:var(--bg3);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:2px 8px;
+    margin-left:auto;
+  }
+  .card p{color:var(--muted);font-size:14.5px;margin-bottom:12px}
+  .tags{display:flex;gap:8px;flex-wrap:wrap}
+  .tag{
+    font-size:11.5px;
+    padding:3px 10px;
+    border-radius:12px;
+    background:var(--bg3);
+    border:1px solid var(--border);
+    color:var(--muted);
+    font-weight:600;
+  }
+  .tag.engine{color:var(--purple);border-color:#3d2e5c;background:#2a1e40}
+  .tag.feature{color:var(--blue);border-color:#1e3a5f;background:#152a44}
+  .tag.warn{color:var(--yellow);border-color:#4d3a00;background:#3a2c00}
+  footer{
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    margin-top:56px;
+    padding-top:24px;
+    border-top:1px solid var(--border);
+  }
+  footer b{color:var(--text)}
+  @media (max-width:600px){
+    .file{margin-left:0}
+    .card{padding:18px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Py<span>Camp</span> — выбор версии</h1>
+    <p>Пять вариантов интерактивного курса Python в одном HTML-файле. Открой любую версию и сравни, как устроены разные подходы к обучению.</p>
+  </header>
+
+  <div class="grid">
+
+    <a class="card" href="0giga.html">
+      <div class="card-head">
+        <span class="num">0</span>
+        <h2>Базовая версия (GigaChat)</h2>
+        <span class="file">0giga.html</span>
+      </div>
+      <p>Компактный курс на 6 уроков: приветствие, переменные, ввод, условия, циклы, списки. Минималистичный интерфейс, проверка тестов через эмуляцию.</p>
+      <div class="tags">
+        <span class="tag engine">Эмуляция JS</span>
+        <span class="tag">6 уроков</span>
+        <span class="tag">Компактный</span>
+      </div>
+    </a>
+
+    <a class="card" href="1deepseek.html">
+      <div class="card-head">
+        <span class="num">1</span>
+        <h2>Полный курс (DeepSeek)</h2>
+        <span class="file">1deepseek.html</span>
+      </div>
+      <p>31 урок с теорией, редактором и автопроверками. Настоящий Python в браузере через Pyodide, тёмная тема, сохранение прогресса и черновиков кода.</p>
+      <div class="tags">
+        <span class="tag engine">Pyodide</span>
+        <span class="tag feature">31 урок</span>
+        <span class="tag feature">Автосохранение</span>
+        <span class="tag">ООП + файлы</span>
+      </div>
+    </a>
+
+    <a class="card" href="2qwen.html">
+      <div class="card-head">
+        <span class="num">2</span>
+        <h2>Двухпанельный курс (Qwen)</h2>
+        <span class="file">2qwen.html</span>
+      </div>
+      <p>24 урока в стиле freeCodeCamp: теория и код рядом, подсветка синтаксиса, подсказки, финальный проект «Менеджер задач». Проверка через регекспы по коду.</p>
+      <div class="tags">
+        <span class="tag engine">Эмуляция JS</span>
+        <span class="tag feature">24 урока</span>
+        <span class="tag">Markdown-теория</span>
+        <span class="tag">Проект в конце</span>
+      </div>
+    </a>
+
+    <a class="card" href="3zai.html">
+      <div class="card-head">
+        <span class="num">3</span>
+        <h2>Курс с проектами и экзаменом (Z.AI)</h2>
+        <span class="file">3zai.html</span>
+      </div>
+      <p>47 уроков в 10 модулях: от print() до декораторов, JSON и регулярных выражений. Настоящий Python (Pyodide), автотесты, 3 проекта и финальный экзамен с сертификатом.</p>
+      <div class="tags">
+        <span class="tag engine">Pyodide</span>
+        <span class="tag feature">47 уроков</span>
+        <span class="tag feature">Автотесты</span>
+        <span class="tag feature">Сертификат</span>
+        <span class="tag">Конфетти 🎉</span>
+      </div>
+    </a>
+
+    <a class="card" href="4cursor.html">
+      <div class="card-head">
+        <span class="num">4</span>
+        <h2>Курс со Skulpt (Cursor)</h2>
+        <span class="file">4cursor.html</span>
+      </div>
+      <p>38 уроков с проверками через Skulpt — JavaScript-интерпретатор Python. Есть сертификат с печатью, hero-секция в стиле freeCodeCamp и 3 проекта в финале.</p>
+      <div class="tags">
+        <span class="tag engine">Skulpt</span>
+        <span class="tag feature">38 уроков</span>
+        <span class="tag feature">Печать сертификата</span>
+        <span class="tag warn">Офлайн после загрузки</span>
+      </div>
+    </a>
+
+  </div>
+
+  <footer>
+    Все файлы автономны — просто положи <b>index.html</b> рядом с ними и открой в браузере.
+  </footer>
+
+</div>
+</body>
+</html>

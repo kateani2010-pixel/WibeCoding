@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyCamp: Курс Python в одном файле</title>
+    <style>
+        :root {
+            --bg-dark: #1e1e1e;
+            --bg-panel: #252526;
+            --text-light: #d4d4d4;
+            --text-comment: #6a9955;
+            --text-keyword: #569cd6;
+            --text-string: #ce9178;
+            --accent: #007acc;
+            --border: #333333;
+        }
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        #sidebar {
+            width: 250px;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+        }
+        #sidebar h2 {
+            text-align: center;
+            padding: 15px;
+            margin: 0;
+            background-color: var(--accent);
+            color: white;
+            font-size: 1.2rem;
+        }
+        #module-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .module {
+            border-bottom: 1px solid var(--border);
+        }
+        .module-header {
+            background-color: #3c3c3c;
+            padding: 10px 15px;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .module-header:hover { background-color: #4c4c4c; }
+        .lessons {
+            list-style: none;
+            padding: 0 0 0 20px;
+            margin: 0;
+            background-color: #2d2d2d;
+            display: none;
+        }
+        .lessons.active { display: block; }
+        .lesson {
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .lesson:hover { background-color: #3c3c3c; }
+        .lesson.active { background-color: var(--accent); color: white; }
+        #main-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        #task-area {
+            flex: 1;
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+        #instructions {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: white;
+            border-right: 1px solid var(--border);
+        }
+        #code-container {
+            flex: 2;
+            position: relative;
+        }
+        #code-editor {
+            width: 100%;
+            height: 100%;
+            border: none;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            padding: 10px;
+            box-sizing: border-box;
+            white-space: pre;
+            outline: none;
+            background-color: var(--bg-panel);
+            color: var(--text-light);
+            line-height: 1.5em;
+            resize: none;
+        }
+        #run-console {
+            height: 200px;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            padding: 10px;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 13px;
+            overflow-y: auto;
+            border-top: 1px solid var(--border);
+        }
+        .btn {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-radius: 4px;
+        }
+        .btn:hover { background-color: #005a9e; }
+        #controls {
+            padding: 10px;
+            background-color: #e9e9e9;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .hidden { display: none; }
+        .token-keyword { color: var(--text-keyword); }
+        .token-string { color: var(--text-string); }
+        .token-comment { color: var(--text-comment); }
+    </style>
+</head>
+<body>
+
+<div id="sidebar">
+    <h2>PyCamp</h2>
+    <ul id="module-list"></ul>
+</div>
+
+<div id="main-content">
+    <div id="task-area">
+        <div id="instructions">
+            <h3>Задание</h3>
+            <p id="task-text">Выберите урок в панели слева.</p>
+        </div>
+        <div id="code-container">
+            <textarea id="code-editor"># Ваш код здесь
+print("Привет, мир!")</textarea>
+        </div>
+    </div>
+    <div id="run-console"></div>
+    <div id="controls">
+        <button id="run-btn" class="btn">▶ Выполнить код</button>
+        <span id="lesson-counter"></span>
+    </div>
+</div>
+
+<script>
+// === БАЗА ДАННЫХ КУРСА ===
+const courseData = [
+    {
+        id: 'basics',
+        title: '1. Основы и синтаксис',
+        lessons: [
+            {
+                id: 'hello',
+                title: '01. Hello, World!',
+                task: 'Напишите программу, которая выводит на экран фразу "Привет, PyCamp!". Используйте функцию print().',
+                initialCode: 'print("Привет, PyCamp!")',
+                solution: 'print("Привет, PyCamp!")',
+                tests: [
+                    { code: 'print("Привет, PyCamp!")', expected: 'Привет, PyCamp!' }
+                ]
+            },
+            {
+                id: 'variables',
+                title: '02. Переменные и типы данных',
+                task: 'Создайте переменную name со своим именем и переменную age с вашим возрастом. Выведите их на экран в формате: "Имя: [имя], Возраст: [возраст]"',
+                initialCode: 'name = "Алексей"\nage = 25\nprint(f"Имя: {name}, Возраст: {age}")',
+                solution: 'name = "Алексей"\nage = 25\nprint(f"Имя: {name}, Возраст: {age}")',
+                tests: [
+                    { code: 'name = "Alex"\nage = 30\nprint(f"Имя: {name}, Возраст: {age}")', expected: 'Имя: Alex, Возраст: 30' }
+                ]
+            },
+            {
+                id: 'input',
+                title: '03. Ввод данных (input)',
+                task: 'Спросите у пользователя его имя через input() и поприветствуйте его. Например: "Введите ваше имя: " -> "Привет, Иван!"',
+                initialCode: 'user_name = input("Введите ваше имя: ")\nprint(f"Привет, {user_name}!")',
+                solution: 'user_name = input("Введите ваше имя: ")\nprint(f"Привет, {user_name}!")',
+                tests: []
+            }
+        ]
+    },
+    {
+        id: 'logic',
+        title: '2. Условия и циклы',
+        lessons: [
+            {
+                id: 'if',
+                title: '04. Условный оператор if',
+                task: 'Создайте переменную score. Если score больше или равно 50, выведите "Сдано", иначе выведите "Не сдано".',
+                initialCode: 'score = 75\nif score >= 50:\n    print("Сдано")\nelse:\n    print("Не сдано")',
+                solution: 'score = 75\nif score >= 50:\n    print("Сдано")\nelse:\n    print("Не сдано")',
+                tests: [
+                    { code: 'score = 40\nif score >= 50:\n    print("Сдано")\nelse:\n    print("Не сдано")', expected: 'Не сдано' }
+                ]
+            },
+            {
+                id: 'for',
+                title: '05. Цикл for',
+                task: 'Используя цикл for, выведите на экран числа от 1 до 5, каждое с новой строки.',
+                initialCode: 'for i in range(1, 6):\n    print(i)',
+                solution: 'for i in range(1, 6):\n    print(i)',
+                tests: [
+                    { code: 'for i in range(1, 4):\n    print(i)', expected: '1\n2\n3' }
+                ]
+            }
+        ]
+    },
+    {
+        id: 'data',
+        title: '3. Структуры данных',
+        lessons: [
+            {
+                id: 'list',
+                title: '06. Списки (Lists)',
+                task: 'Создайте список fruits с тремя названиями фруктов. Добавьте в конец еще один фрукт и выведите итоговый список.',
+                initialCode: 'fruits = ["Яблоко", "Банан", "Груша"]\nfruits.append("Апельсин")\nprint(fruits)',
+                solution: 'fruits = ["Яблоко", "Банан", "Груша"]\nfruits.append("Апельсин")\nprint(fruits)',
+                tests: [
+                    { code: 'nums = [1, 2]\nnums.append(3)\nprint(nums)', expected: '1, 2, 3' }
+                ]
+            }
+        ]
+    }
+];
+
+// === СОСТОЯНИЕ ПРИЛОЖЕНИЯ ===
+let currentModuleIndex = 0;
+let currentLessonIndex = 0;
+let userCode = '';
+
+// === ОТРИСОВКА ИНТЕРФЕЙСА ===
+function renderSidebar() {
+    const list = document.getElementById('module-list');
+    list.innerHTML = '';
+    courseData.forEach((module, mIndex) => {
+        const li = document.createElement('li');
+        li.className = 'module';
+        
+        const header = document.createElement('div');
+        header.className = 'module-header';
+        header.textContent = module.title;
+        header.onclick = () => toggleModule(mIndex);
+        
+        const caret = document.createElement('span');
+        caret.textContent = '▸';
+        header.appendChild(caret);
+        
+        const lessons = document.createElement('ul');
+        lessons.className = 'lessons';
+        module.lessons.forEach((lesson, lIndex) => {
+            const lessonLi = document.createElement('li');
+            lessonLi.className = 'lesson';
+            lessonLi.textContent = lesson.title;
+            lessonLi.onclick = () => loadLesson(mIndex, lIndex);
+            lessons.appendChild(lessonLi);
+        });
+        
+        li.appendChild(header);
+        li.appendChild(lessons);
+        list.appendChild(li);
+    });
+    expandCurrentModule();
+}
+
+function toggleModule(index) {
+    const lessons = document.querySelectorAll(`#module-list li:nth-child(${index + 1}) .lessons`);
+    const caret = document.querySelector(`#module-list li:nth-child(${index + 1}) .module-header span`);
+    lessons.forEach(l => l.classList.toggle('active'));
+    caret.textContent = lessons[0].classList.contains('active') ? '▾' : '▸';
+}
+
+function expandCurrentModule() {
+    const header = document.querySelector(`#module-list li:nth-child(${currentModuleIndex + 1}) .module-header`);
+    const lessons = document.querySelector(`#module-list li:nth-child(${currentModuleIndex + 1}) .lessons`);
+    const caret = header.querySelector('span');
+    lessons.classList.add('active');
+    caret.textContent = '▾';
+    highlightCurrentLesson();
+}
+
+function highlightCurrentLesson() {
+    document.querySelectorAll('.lesson').forEach(el => el.classList.remove('active'));
+    const activeLesson = document.querySelector(`#module-list li:nth-child(${currentModuleIndex + 1}) .lessons li:nth-child(${currentLessonIndex + 1})`);
+    if (activeLesson) activeLesson.classList.add('active');
+}
+
+function loadLesson(mIndex, lIndex) {
+    currentModuleIndex = mIndex;
+    currentLessonIndex = lIndex;
+    renderSidebar();
+    
+    const lesson = courseData[mIndex].lessons[lIndex];
+    document.getElementById('task-text').textContent = lesson.task;
+    document.getElementById('code-editor').value = lesson.initialCode;
+    userCode = lesson.initialCode;
+    document.getElementById('run-console').innerHTML = '';
+    document.getElementById('lesson-counter').textContent = `Урок ${mIndex + 1}.${lIndex + 1}: ${lesson.title}`;
+}
+
+// === ЛОГИКА ВЫПОЛНЕНИЯ КОДА ===
+function runCode() {
+    const consoleEl = document.getElementById('run-console');
+    consoleEl.innerHTML = 'Выполнение...';
+    
+    const lesson = courseData[currentModuleIndex].lessons[currentLessonIndex];
+    userCode = document.getElementById('code-editor').value;
+    
+    // Проверка на соответствие тестам (если они есть)
+    if (lesson.tests && lesson.tests.length > 0) {
+        let passed = true;
+        lesson.tests.forEach(test => {
+            const output = safeExecute(test.code);
+            if (output.trim() !== test.expected.trim()) {
+                passed = false;
+            }
+        });
+        if (passed) {
+            consoleEl.innerHTML += '<br><span style="color: #4caf50;">✅ Тесты пройдены! Переходите к следующему уроку.</span>';
+            // Авто-переход на следующий урок
+            if (currentLessonIndex < courseData[currentModuleIndex].lessons.length - 1) {
+                setTimeout(() => loadLesson(currentModuleIndex, currentLessonIndex + 1), 1500);
+            } else if (currentModuleIndex < courseData.length - 1) {
+                setTimeout(() => loadLesson(currentModuleIndex + 1, 0), 1500);
+            }
+            return;
+        }
+    }
+    
+    // Обычное выполнение кода пользователя
+    const output = safeExecute(userCode);
+    consoleEl.innerHTML += '<br>' + output.replace(/\n/g, '<br>');
+}
+
+function safeExecute(code) {
+    let output = '';
+    const oldLog = console.log;
+    console.log = function(...args) {
+        output += args.join(' ') + '\n';
+    };
+    try {
+        // Используем Function для изоляции контекста
+        const fn = new Function(code);
+        fn();
+    } catch (e) {
+        output += 'Ошибка: ' + e.message;
+    } finally {
+        console.log = oldLog;
+    }
+    return output;
+}
+
+// === СИНТАКСИС В ТЕКСТАРИИ (упрощенный) ===
+function highlightSyntax() {
+    const editor = document.getElementById('code-editor');
+    const code = editor.value;
+    const keywords = ['if', 'else', 'for', 'in', 'def', 'return', 'print', 'input', 'while', 'break', 'continue', 'True', 'False', 'None'];
+    
+    let highlighted = code
+        .replace(/(".*?"|'.*?')/g, `<span class="token-string">$1</span>`) // Строки
+        .replace(/#.*/g, `<span class="token-comment">$&</span>`) // Комментарии
+        .split(' ')
+        .map(word => {
+            if (keywords.includes(word.replace(/[\n;]/g, ''))) {
+                return `<span class="token-keyword">${word}</span>`;
+            }
+            return word;
+        })
+        .join(' ');
+        
+    editor.innerHTML = highlighted;
+    // Восстанавливаем курсор и прокрутку
+    const cursorPos = editor.selectionStart;
+    const scrollTop = editor.scrollTop;
+    editor.focus();
+    editor.setSelectionRange(cursorPos, cursorPos);
+    editor.scrollTop = scrollTop;
+}
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+document.getElementById('run-btn').addEventListener('click', runCode);
+document.getElementById('code-editor').addEventListener('input', highlightSyntax);
+
+// Запуск при загрузке
+renderSidebar();
+loadLesson(0, 0);
+highlightSyntax();
+</script>
+
+</body>
+</html>
